@@ -58,7 +58,7 @@ namespace Device
                         var status = new Status()
                         {
                             DeviceId = deviceId,
-                            Value = "Something",
+                            Value = "Something 1",
                             When = DateTimeOffset.Now,
                             MessageId = Guid.NewGuid(),
                         };
@@ -70,9 +70,25 @@ namespace Device
                                     .WithUserProperty("encoding", "utf8")
                                     .WithMessage(status)
                             , cancellationTokenSource.Token);
+                        var status2 = new Status2()
+                        {
+                            DeviceId = deviceId,
+                            Value = "Something 2",
+                            When = DateTimeOffset.Now,
+                            MessageId = Guid.NewGuid(),
+                        };
 
+                        await mqttClient.PublishAsync(builder =>
+                                builder
+                                    .WithTopic($"bct/{deviceType}/{deviceId}/status")
+                                    .WithUserProperty("messageType", nameof(Status2))
+                                    .WithUserProperty("serialization", "json")
+                                    .WithUserProperty("encoding", "utf8")
+                                    .WithMessage(status2)
+                            , cancellationTokenSource.Token);
 
                         Console.WriteLine($"Publishing Status Message [{status.MessageId}]");
+                        Console.WriteLine($"Publishing Status2 Message [{status2.MessageId}]");
                         await Task.Delay(1000, cancellationTokenSource.Token);
                     }
                 }, cancellationTokenSource.Token);

@@ -9,4 +9,13 @@ namespace Spike.Messages
         public Guid MessageId { get; set; }
         public string DeviceId { get; set; }
     }
+
+    public class Status2
+    {
+        public string Value { get; set; }
+        public DateTimeOffset When { get; set; }
+        public Guid MessageId { get; set; }
+        public string DeviceId { get; set; }
+    }
+
 }
