@@ -27,8 +27,8 @@ namespace Device
             };
 
             var deviceType = "myDevice";
-            //var deviceUniqueId = Guid.NewGuid();
-            var deviceUniqueId = "a";
+            var deviceUniqueId = Guid.NewGuid();
+            //var deviceUniqueId = "a";
             var deviceId = $"{deviceType}-{deviceUniqueId}";
             Console.Title = $"Device: {deviceId}";
 
@@ -57,7 +57,8 @@ namespace Device
                     {
                         var status = new Status()
                         {
-                            Value = "",
+                            DeviceId = deviceId,
+                            Value = "Something",
                             When = DateTimeOffset.Now,
                             MessageId = Guid.NewGuid(),
                         };
