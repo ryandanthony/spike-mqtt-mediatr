@@ -36,7 +36,6 @@ namespace Device
                 .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
                 .WithPendingMessagesOverflowStrategy(MqttPendingMessagesOverflowStrategy.DropOldestQueuedMessage)
                 .WithClientOptions(new MqttClientOptionsBuilder()
-                    .WithCleanSession()
                     .WithCommunicationTimeout(TimeSpan.FromSeconds(15))
                     .WithProtocolVersion(MqttProtocolVersion.V500)
                     .WithClientId(deviceId)
