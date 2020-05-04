@@ -8,10 +8,10 @@ using Application.Messages;
 using MediatR;
 using Prometheus;
 
-namespace Application
+namespace Application.Observability
 {
     public class MetricsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IGenericRequest
+        where TRequest : IMqttInboundRequest
     {
         private static readonly Histogram Duration = Metrics.CreateHistogram("mqtt_processing",
             "Histogram of time spent processing mqtt message.",

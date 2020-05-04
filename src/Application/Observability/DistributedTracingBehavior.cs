@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Application.Messages;
 using MediatR;
 
-namespace Application
+namespace Application.Observability
 {
     public class DistributedTracingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IGenericRequest
+        where TRequest : IMqttInboundRequest
     {
         //private static readonly Histogram Duration = Metrics.CreateHistogram("mqtt_processing",
         //    "Histogram of time spent processing mqtt message.",

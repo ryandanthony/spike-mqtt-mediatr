@@ -1,4 +1,4 @@
-﻿// <copyright file="GenericRequest.cs" company="TerumoBCT">
+﻿// <copyright file="MqttInboundRequest.cs" company="TerumoBCT">
 // Copyright (c) 2020 TerumoBCT. All rights reserved.
 // </copyright>
 
@@ -10,11 +10,11 @@ using Spike.Common;
 
 namespace Application.Messages
 {
-    public class GenericRequest<T> : IRequest<GenericResponse>, IGenericRequest
+    public class MqttInboundRequest<T> : IRequest<MqttInboundResponse>, IMqttInboundRequest
     {
         private readonly Lazy<T> _lazyMessage;
 
-        public GenericRequest()
+        public MqttInboundRequest()
         {
             PropertyBag = new Dictionary<string, object>();
             _lazyMessage = new Lazy<T>(() => RawMessage.Payload.To<T>());

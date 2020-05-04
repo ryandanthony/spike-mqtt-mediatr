@@ -1,4 +1,4 @@
-﻿// <copyright file="IGenericRequest.cs" company="TerumoBCT">
+﻿// <copyright file="IMqttInboundRequest.cs" company="TerumoBCT">
 // Copyright (c) 2020 TerumoBCT. All rights reserved.
 // </copyright>
 
@@ -7,7 +7,7 @@ using MQTTnet;
 
 namespace Application.Messages
 {
-    public interface IGenericRequest
+    public interface IMqttInboundRequest
     {
         Dictionary<string, object>  PropertyBag { get; set; }
         MqttApplicationMessage RawMessage { get; set; }

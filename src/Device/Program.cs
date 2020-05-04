@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MQTTnet;
 using MQTTnet.Client.Options;
+using MQTTnet.Client.Receiving;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet.Formatter;
 using MQTTnet.Server;
@@ -49,7 +51,9 @@ namespace Device
             using (var cancellationTokenSource = new CancellationTokenSource())
             using (var mqttClient = new MqttFactory().CreateManagedMqttClient())
             {
-                //await mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic("bct/topic").Build());
+                await mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic("bct/app/status").Build());
+                mqttClient.ApplicationMessageReceivedHandler =
+                    new MqttApplicationMessageReceivedHandlerDelegate(OnMessageReceived);
                 await mqttClient.StartAsync(options);
                 await Task.Run(async () =>
                 {
@@ -89,12 +93,22 @@ namespace Device
 
                         Console.WriteLine($"Publishing Status Message [{status.MessageId}]");
                         Console.WriteLine($"Publishing Status2 Message [{status2.MessageId}]");
-                        await Task.Delay(1000, cancellationTokenSource.Token);
+                        await Task.Delay(2000, cancellationTokenSource.Token);
                     }
                 }, cancellationTokenSource.Token);
                 are.WaitOne();
                 await mqttClient.StopAsync();
             }
+        }
+
+        private static Task OnMessageReceived(MqttApplicationMessageReceivedEventArgs arg)
+        {
+            var messageTypeString = arg.ApplicationMessage
+                .UserProperties?
+                .FirstOrDefault(p => p.Name == "messageType")?
+                .Value; 
+            Console.WriteLine(messageTypeString);   
+            return Task.CompletedTask;
         }
     }
 }

@@ -2,7 +2,6 @@
 // Copyright (c) 2020 TerumoBCT. All rights reserved.
 // </copyright>
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Jaeger;
@@ -12,9 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTracing.Propagation;
 using OpenTracing.Util;
-using Prometheus;
 
-namespace Application
+namespace Application.Observability
 {
     public class DistributedTracingHost : IHostedService
     {

@@ -2,13 +2,12 @@
 // Copyright (c) 2020 TerumoBCT. All rights reserved.
 // </copyright>
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Prometheus;
 
-namespace Application
+namespace Application.Observability
 {
     public class MetricsHost : IHostedService
     {

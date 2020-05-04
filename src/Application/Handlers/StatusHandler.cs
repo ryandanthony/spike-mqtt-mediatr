@@ -9,12 +9,12 @@ using Spike.Messages;
 
 namespace Application.Handlers
 {
-    public class StatusHandler : IRequestHandler<GenericRequest<Status>, GenericResponse>
+    public class StatusHandler : IRequestHandler<MqttInboundRequest<Status>, MqttInboundResponse>
     {
-        public Task<GenericResponse> Handle(GenericRequest<Status> request, CancellationToken cancellationToken)
+        public Task<MqttInboundResponse> Handle(MqttInboundRequest<Status> request, CancellationToken cancellationToken)
         {
             Console.WriteLine($"[{request.Message.DeviceId}][{request.Message.MessageId}][{request.Message.When}] {request.Message.Value}" );
-            return Task.FromResult(new GenericResponse() {Success = true});
+            return Task.FromResult(new MqttInboundResponse() {Success = true});
         }
     }
 }
