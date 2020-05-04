@@ -51,7 +51,9 @@ namespace Device
             using (var cancellationTokenSource = new CancellationTokenSource())
             using (var mqttClient = new MqttFactory().CreateManagedMqttClient())
             {
-                await mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic("bct/app/status").Build());
+                await mqttClient.SubscribeAsync(
+                    new TopicFilterBuilder().WithTopic("bct/app/status").Build(), 
+                    new TopicFilterBuilder().WithTopic($"bct/{deviceType}/{deviceId}/in").Build());
                 mqttClient.ApplicationMessageReceivedHandler =
                     new MqttApplicationMessageReceivedHandlerDelegate(OnMessageReceived);
                 await mqttClient.StartAsync(options);
@@ -59,41 +61,37 @@ namespace Device
                 {
                     while (running)
                     {
-                        var status = new Status()
+                        //var status = new Status()
+                        //{
+                        //    DeviceId = deviceId,
+                        //    Value = "Something 1",
+                        //    When = DateTimeOffset.Now,
+                        //    MessageId = Guid.NewGuid(),
+                        //};
+                        //await mqttClient.PublishAsync(builder =>
+                        //        builder
+                        //            .WithTopic($"bct/{deviceType}/{deviceId}/status")
+                        //            .WithUserProperty("messageType", nameof(Status))
+                        //            .WithUserProperty("serialization", "json")
+                        //            .WithUserProperty("encoding", "utf8")
+                        //            .WithMessage(status)
+                        //    , cancellationTokenSource.Token);
+                        var status2 = new InitializeConnection()
                         {
                             DeviceId = deviceId,
-                            Value = "Something 1",
-                            When = DateTimeOffset.Now,
-                            MessageId = Guid.NewGuid(),
-                        };
-                        await mqttClient.PublishAsync(builder =>
-                                builder
-                                    .WithTopic($"bct/{deviceType}/{deviceId}/status")
-                                    .WithUserProperty("messageType", nameof(Status))
-                                    .WithUserProperty("serialization", "json")
-                                    .WithUserProperty("encoding", "utf8")
-                                    .WithMessage(status)
-                            , cancellationTokenSource.Token);
-                        var status2 = new Status2()
-                        {
-                            DeviceId = deviceId,
-                            Value = "Something 2",
-                            When = DateTimeOffset.Now,
-                            MessageId = Guid.NewGuid(),
                         };
 
                         await mqttClient.PublishAsync(builder =>
                                 builder
-                                    .WithTopic($"bct/{deviceType}/{deviceId}/status")
-                                    .WithUserProperty("messageType", nameof(Status2))
+                                    .WithTopic($"bct/{deviceType}/{deviceId}/out")
+                                    .WithUserProperty("messageType", nameof(InitializeConnection))
                                     .WithUserProperty("serialization", "json")
                                     .WithUserProperty("encoding", "utf8")
                                     .WithMessage(status2)
                             , cancellationTokenSource.Token);
 
-                        Console.WriteLine($"Publishing Status Message [{status.MessageId}]");
-                        Console.WriteLine($"Publishing Status2 Message [{status2.MessageId}]");
-                        await Task.Delay(2000, cancellationTokenSource.Token);
+                        Console.WriteLine($"Publishing InitializeConnection Message");
+                        await Task.Delay(6000, cancellationTokenSource.Token);
                     }
                 }, cancellationTokenSource.Token);
                 are.WaitOne();

@@ -15,7 +15,6 @@ using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Receiving;
 using MQTTnet.Extensions.ManagedClient;
-using MQTTnet.Protocol;
 using Spike.Messages;
 
 namespace Application
@@ -36,15 +35,19 @@ namespace Application
             _mqttClient = _provider.GetRequiredService<IManagedMqttClient>();
             _mediator = _provider.GetRequiredService<IMediator>();
 
-            string @group = "thisGroup";
-            
+            var group = "thisGroup";
             var deviceType = "+";
             var deviceId = "+";
+            
             //var deviceType = "myDevice";
             //var deviceId = "myDevice-a";
-            var topic = $"$share/{group}/bct/{deviceType}/{deviceId}/status";
-            //var topic = $"bct/{deviceType}/{deviceId}/status";
-            await _mqttClient.SubscribeAsync(topic, MqttQualityOfServiceLevel.ExactlyOnce);
+
+            var topics = new[]
+            {
+                new TopicFilterBuilder().WithTopic( $"$share/{group}/bct/{deviceType}/{deviceId}/status").Build(),
+                new TopicFilterBuilder().WithTopic( $"$share/{group}/bct/{deviceType}/{deviceId}/out").Build(),
+            };
+            await _mqttClient.SubscribeAsync(topics);
             _mqttClient.ConnectedHandler = new MqttClientConnectedHandlerDelegate(OnConnected);
             _mqttClient.DisconnectedHandler = new MqttClientDisconnectedHandlerDelegate(OnDisconnected);
             _mqttClient.ConnectingFailedHandler = new ConnectingFailedHandlerDelegate(OnConnectingFailed);
@@ -121,8 +124,8 @@ namespace Application
             {
                 case nameof(Status):
                     return typeof(Status);
-                case nameof(Status2):
-                    return typeof(Status2);
+                case nameof(InitializeConnection):
+                    return typeof(InitializeConnection);
                 default:
                     throw new Exception("Unable to determine type");
             }
