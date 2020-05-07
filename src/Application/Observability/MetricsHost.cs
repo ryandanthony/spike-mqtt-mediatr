@@ -13,9 +13,9 @@ namespace Application.Observability
     {
         private readonly MetricServer _metricServerInstance;
 
-        public MetricsHost(int port)
+        public MetricsHost(string host, int port)
         {
-            _metricServerInstance = new MetricServer(port: port);
+            _metricServerInstance = new MetricServer(hostname: host, port: port);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

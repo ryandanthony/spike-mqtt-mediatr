@@ -48,14 +48,14 @@ namespace Application
                             .WithClientOptions(new MqttClientOptionsBuilder()
                                 .WithClientId(mqttClientConfiguration.ClientId)
                                 .WithProtocolVersion(MqttProtocolVersion.V500)
-                                .WithTcpServer("localhost", 1883)
+                                .WithTcpServer("192.168.1.98", 1883)
                                 //.WithTls()
                                 .Build()
                             )
 
                             .Build();
                         var mqttClient = new MqttFactory().CreateManagedMqttClient();
-
+                       
                         mqttClient.StartAsync(options).Wait();
                         return mqttClient;
                     });
@@ -65,7 +65,7 @@ namespace Application
                     //services.AddScoped(typeof(IPipelineBehavior<,>), typeof(MetricsPipelineBehavior<,>));
                     //services.AddScoped(typeof(IPipelineBehavior<,>), typeof(DistributedTracingBehavior<,>));
 
-                    services.AddHostedService(provider => new MetricsHost(1200));
+                    //services.AddHostedService(provider => new MetricsHost("192.168.1.98",1200));
                     //services.AddHostedService(provider => new DistributedTracingHost(provider.GetService<ILoggerFactory>(), provider.GetService<IConfiguration>())); 
                     services.AddHostedService(provider => new MqttProcessorHost(provider));
                     services.AddHostedService(provider => new StatusSender(provider));

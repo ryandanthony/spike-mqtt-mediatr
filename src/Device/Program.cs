@@ -41,7 +41,7 @@ namespace Device
                     .WithCommunicationTimeout(TimeSpan.FromSeconds(15))
                     .WithProtocolVersion(MqttProtocolVersion.V500)
                     .WithClientId(deviceId)
-                    .WithTcpServer("localhost", 1883)
+                    .WithTcpServer("192.168.1.98", 1883)
                     //.WithTls()
                     .Build()
                 )

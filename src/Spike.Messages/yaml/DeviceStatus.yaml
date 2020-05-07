@@ -1,0 +1,57 @@
+
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+  license:
+    name: MIT
+
+paths:
+  /:
+    get:
+      responses:
+        '200':
+           description: OK
+
+
+components:
+  schemas:
+    DeviceStatus: # AGGREGATE-NAME
+      type: object  # SUPPORTED-OPENAPI-TYPE
+      description: 'Device Status.' # TEXT
+      x-aggregate-version: v1.0.0  # VERSION-STRING
+      x-additional-cpp-includes: [ 'ProjectEnumerations.h' ] # HEADER-FILENAME
+      properties:
+        Condition: # FIELD-NAME
+          type: integer # SUPPORTED-OPENAPI-TYPE
+          format: enum-int32  # ENUM-TYPE
+          default: "2"  # DEFAULT-VALUE
+          x-enumName: StatusEnum  # ENUM-NAME
+          x-enumSuffix: Status  # ENUM-SUFFIX
+      x-meta-data:
+        versions:
+          v1.0.0: # VERSION-STRING
+            properties:
+              Condition:
+                x-version-ref: 'v1.0.0'  # VERSION-STRING
+
+    ProjectEnumerations:
+      type: object
+      description: 'ProjectEnumerations'
+      x-aggregate-version: v1.0.0
+      properties:
+        StatusGenerator:  # AGGREGATE-NAME  ENUM-FIELD-SCHEMA ...
+          type: integer   
+          format: enum-int32  # ENUM-TYPE
+          x-enumName: StatusEnum   # ENUM-NAME
+          x-enumSuffix: Status  # ENUM-SUFFIX
+          x-enumNames: [ Unknown, Connected, InUse, Disconnected ]  # ENUM-VALUE-NAME, ...
+          x-generateEnumDescriptions: [ 'Unknown', 'Connected', 'In Use', 'Disconnected' ]
+                                        # ENUM-VALUE-DESCRIPTION, ...
+          enum: [ 0, 1, 2, 3 ]   # ENUM-VALUE, ENUM-VALUE, ...
+      x-meta-data:
+        versions:
+          v1.0.0:   # VERSION-STRING
+            properties:
+              StatusGenerator:
+                x-version-ref: 'v1.0.0'  # VERSION-STRING
