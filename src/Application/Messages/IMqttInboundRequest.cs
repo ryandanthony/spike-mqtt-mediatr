@@ -11,7 +11,11 @@ namespace Application.Messages
     {
         Dictionary<string, object>  PropertyBag { get; set; }
         MqttApplicationMessage RawMessage { get; set; }
+        string ResponseTopic { get; set; }
+        byte[] CorrelationData { get; set; }
+    }
 
-
+    public interface IMqttInboundRequest<T> : IMqttInboundRequest
+    {
     }
 }

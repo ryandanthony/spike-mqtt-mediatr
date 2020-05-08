@@ -38,8 +38,9 @@ namespace Application
                     Console.WriteLine($"Sending: {status.MessageId}");
                     await mediator.Send(new MqttOutboundRequest()
                     {
-                        Message = status,
                         Topic = $"bct/app/status",
+                        Message = status,
+                        MessageType = status.GetType().Name
                     }, cancellationToken);
                     await Task.Delay(1000, cancellationToken);
                 }

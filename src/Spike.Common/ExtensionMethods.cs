@@ -3,6 +3,7 @@ using System.Text;
 using MQTTnet;
 using Newtonsoft.Json;
 
+
 namespace Spike.Common
 {
     public static class ExtensionMethods

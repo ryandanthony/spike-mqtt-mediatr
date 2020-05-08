@@ -4,16 +4,32 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Messages;
+using Bct.Common.Workflow.Aggregates.Implementation;
+using BCT.Common.Logging.Extensions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Spike.Messages;
 
 namespace Application.Handlers
 {
-    public class StatusHandler : IRequestHandler<MqttInboundRequest<Status>, MqttInboundResponse>
+    public class StatusHandler : IRequestHandler<MqttInboundRequest<DeviceStatus>, MqttInboundResponse>
     {
-        public Task<MqttInboundResponse> Handle(MqttInboundRequest<Status> request, CancellationToken cancellationToken)
+        private ILogger<StatusHandler> _logger;
+
+        public StatusHandler(ILogger<StatusHandler> logger)
         {
-            Console.WriteLine($"[{request.Message.DeviceId}][{request.Message.MessageId}][{request.Message.When}] {request.Message.Value}" );
+            _logger = logger;
+        }
+
+        public Task<MqttInboundResponse> Handle(MqttInboundRequest<DeviceStatus> request, CancellationToken cancellationToken)
+        {
+            _logger.WithDebug("DeviceStatus: DeviceId:{0} Condition:{1}", request.Message.DeviceId.Value, request.Message.Condition.Value)
+                .HandleAs(Handling.Unrestricted)
+                .WithPair("DeviceId", request.Message.DeviceId.Value)
+                .WithPair("MessageId",request.Message.MessageId.Value)
+                .WithPair("When", DateTime.FromBinary(Convert.ToInt64(request.Message.When.Value)).ToString())
+                .WithPair("Condition", request.Message.Condition.Value)
+                .Log();
             return Task.FromResult(new MqttInboundResponse() {Success = true});
         }
     }

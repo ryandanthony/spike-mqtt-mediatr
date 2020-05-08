@@ -5,12 +5,19 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="BCT.Common.Logging.Extensions" Version="2.7.0" />
 		<PackageReference Include="Bct.Common.Workflow.Aggregates.CSLib" Version="1.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="5.0.0-preview.3.20215.14" />
 		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.9" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\Application\Application.csproj" />
 	  <ProjectReference Include="..\Spike.Common\Spike.Common.csproj" />
 	  <ProjectReference Include="..\Spike.Messages\Spike.Messages.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 </Project>

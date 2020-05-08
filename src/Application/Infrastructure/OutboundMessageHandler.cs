@@ -18,14 +18,29 @@ namespace Application.Infrastructure
 
         public async Task<MqttOutboundResponse> Handle(MqttOutboundRequest request, CancellationToken cancellationToken)
         {
-            await _mqttClient.PublishAsync(builder =>
-                    builder
-                        .WithTopic(request.Topic)
-                        .WithUserProperty("messageType", request.GetMessageType())
-                        .WithUserProperty("serialization", "json")
-                        .WithUserProperty("encoding", "utf8")
-                        .WithMessage(request.GetMessage())
-                , cancellationToken);
+            if (request.Payload != null)
+            {
+                await _mqttClient.PublishAsync(builder =>
+                        builder
+                            .WithTopic(request.Topic)
+                            .WithMessage(request.Message)
+                            .WithPayload(request.Payload)
+                            .WithCorrelationData(request.CorrelationData)
+                            .WithUserProperty("messageType", request.MessageType)
+                            .WithUserProperty("payloadType", request.PayloadType)
+                            .WithUserProperty("serialization", "json")
+                            .WithUserProperty("encoding", "utf8")
+                    , cancellationToken);
+            }
+            else
+            {
+                await _mqttClient.PublishAsync(builder =>
+                        builder
+                            .WithTopic(request.Topic)
+                            .WithMessage(request.Message)
+                            .WithUserProperty("messageType", request.MessageType)
+                    , cancellationToken);
+            }
 
             return new MqttOutboundResponse(){Success = true};
         }

@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCT.Common.Logging.Extensions" Version="2.7.0" />
     <PackageReference Include="Bct.Common.Workflow.Aggregates.CSLib" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="5.0.0-preview.3.20215.14" />
   </ItemGroup>

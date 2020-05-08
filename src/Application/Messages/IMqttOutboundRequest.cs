@@ -9,7 +9,9 @@ namespace Application.Messages
     public interface IMqttOutboundRequest : IRequest<MqttOutboundResponse>
     {
         string Topic { get; }
-        object GetMessage();
-        string GetMessageType();
+        object Message { get; set; }
+        string PayloadType { get; set; }
+        string PayloadVersion { get; set; }
+        string MessageType { get; set; }
     }
 }

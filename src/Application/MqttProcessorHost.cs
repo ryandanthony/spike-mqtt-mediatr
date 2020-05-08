@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Messages;
+using Bct.Common.Workflow.Aggregates.Implementation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,10 @@ using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Receiving;
 using MQTTnet.Extensions.ManagedClient;
 using Spike.Messages;
+using BCT.Common.Logging.Extensions;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using Bct.Common.Workflow.Aggregates;
 
 namespace Application
 {
@@ -24,16 +29,28 @@ namespace Application
         private readonly IServiceProvider _provider;
         private IManagedMqttClient _mqttClient;
         private IMediator _mediator;
+        private ILogger<MqttProcessorHost> _logger;
+        private IDictionary<string, Type> _registeredMessages;
 
-        public MqttProcessorHost(IServiceProvider provider)
+        public MqttProcessorHost(IServiceProvider provider, ILogger<MqttProcessorHost> logger)
         {
             _provider = provider;
+            _logger = logger;
+            _registeredMessages = new Dictionary<string, Type>();
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            _logger.WithInformation("Starting MqttProcessorHost").Log();
             _mqttClient = _provider.GetRequiredService<IManagedMqttClient>();
             _mediator = _provider.GetRequiredService<IMediator>();
+
+            // Build dictionary of aggregate names to types from all IAbstractAggregates to use in MessageTypeMapper
+            var abstractAggregates = _provider.GetServices<IAbstractAggregate>();
+            foreach (var e in abstractAggregates)
+            {
+                _registeredMessages.Add(e.GetType().Name, e.GetType());
+            }
 
             var group = "thisGroup";
             var deviceType = "+";
@@ -106,28 +123,63 @@ namespace Application
                 .FirstOrDefault(p => p.Name == "messageType")?
                 .Value;
 
-            var messageType = MessageTypeMapper(messageTypeString);
-            Type[] typeArgs = {messageType};
-            var generic = typeof(MqttInboundRequest<>);
-            var constructed = generic.MakeGenericType(typeArgs);
-            var request = Activator.CreateInstance(constructed);
-            var inboundRequest = request as IMqttInboundRequest;
-            inboundRequest.RawMessage = arg.ApplicationMessage;
-            inboundRequest.PropertyBag["messageType"] = messageTypeString;
-            var response = await _mediator.Send(request) as MqttInboundResponse;
-            arg.ProcessingFailed = !response.Success;
+            var responseTypeString = arg.ApplicationMessage
+                .UserProperties?
+                .FirstOrDefault(p => p.Name == "responseType")?
+                .Value;
+
+            // only if there is a responseType specifed do we do response processing
+            if (responseTypeString == null)
+            {
+                var messageType = MessageTypeMapper(messageTypeString);
+                Type[] typeArgs = { messageType };
+                var generic = typeof(MqttInboundRequest<>);
+                var constructedType = generic.MakeGenericType(typeArgs);
+                var requestObject = Activator.CreateInstance(constructedType);
+
+                var inboundRequest = requestObject as IMqttInboundRequest;
+                inboundRequest.RawMessage = arg.ApplicationMessage;
+                inboundRequest.PropertyBag["messageType"] = messageTypeString;
+
+                var response = await _mediator.Send(requestObject) as MqttInboundResponse;
+                arg.ProcessingFailed = !response.Success;
+            }
+            else
+            {
+                var messageType = MessageTypeMapper(messageTypeString);
+                Type[] typeArgs = { messageType };
+                var generic = typeof(MqttInboundRequest<>);
+                var constructedType = generic.MakeGenericType(typeArgs);
+                var requestObject = Activator.CreateInstance(constructedType);
+
+                var inboundRequest = requestObject as IMqttInboundRequest;
+                inboundRequest.RawMessage = arg.ApplicationMessage;
+                inboundRequest.PropertyBag["messageType"] = messageTypeString;
+                inboundRequest.PropertyBag["responseType"] = responseTypeString;
+                inboundRequest.ResponseTopic = arg.ApplicationMessage.ResponseTopic;
+                inboundRequest.CorrelationData = arg.ApplicationMessage.CorrelationData;
+
+                var response = await _mediator.Send(requestObject) as MqttInboundResponse;
+                arg.ProcessingFailed = !response.Success;
+                await Task.Run(async () => await _mqttClient.PublishAsync(builder =>
+                        builder
+                            .WithTopic(response.Topic)
+                            .WithPayload(response.Payload)
+                            .WithCorrelationData(response.CorrelationData)
+                            .WithUserProperty("messageType", response.MessageType)
+                            .WithUserProperty("payloadType", response.PayloadType)));
+            }
         }
 
-        private static Type MessageTypeMapper(string value)
+        private Type MessageTypeMapper(string messageName)
         {
-            switch (value)
+            try
             {
-                case nameof(Status):
-                    return typeof(Status);
-                case nameof(InitializeConnection):
-                    return typeof(InitializeConnection);
-                default:
-                    throw new Exception("Unable to determine type");
+                return _registeredMessages[messageName];
+            }
+            catch (Exception)
+            {
+                throw new Exception("Unable to determine type");
             }
         }
 

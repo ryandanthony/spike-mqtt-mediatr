@@ -10,16 +10,11 @@ namespace Application.Messages
     {
         public object Message { get; set; }
         public string Topic { get; set; }
-
-        public object GetMessage()
-        {
-            return Message;
-        }
-
-        public string GetMessageType()
-        {
-            return Message.GetType().Name;
-        }
+        public byte[] Payload { get; set; }
+        public byte[] CorrelationData { get; set; }
+        public string PayloadType { get; set; }
+        public string PayloadVersion { get; set; }
+        public string MessageType { get; set; }
     }
 
     public class MqttOutboundResponse
