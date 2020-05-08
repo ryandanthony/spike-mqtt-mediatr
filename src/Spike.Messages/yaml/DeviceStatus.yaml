@@ -22,6 +22,9 @@ components:
       x-aggregate-version: v1.0.0  # VERSION-STRING
       x-additional-cpp-includes: [ 'ProjectEnumerations.h' ] # HEADER-FILENAME
       properties:
+        DeviceId: { type: string }
+        MessageId: { type: string }
+        When: { type: number, format: double }
         Condition: # FIELD-NAME
           type: integer # SUPPORTED-OPENAPI-TYPE
           format: enum-int32  # ENUM-TYPE

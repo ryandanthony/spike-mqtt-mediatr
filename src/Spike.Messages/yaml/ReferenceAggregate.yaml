@@ -1,0 +1,303 @@
+# This file is a reference YAML file to help explain the specicifaction for aggregate generation and to provide a working example. You
+# must understand YAML syntax to understand this document. Refer to the OpenAPI 3.0 documentation for basic understand of the
+# standard this document is based upon. However, we only support a subset of OpenAPI features, and this document fully represents
+# this subset.
+
+# This document is OpenAPI 3.0 complient, and 3rd party code generators should be able to use this document to generate
+# "the most recent" version of the aggregates.
+
+# This is a QUICK REFERENCE for the generator YAML specification. A more detailed description can be found in the design documents.
+
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+  license:
+    name: MIT
+
+paths:
+  /:
+    get:
+      responses:
+        '200':
+           description: OK
+
+
+# Everything above is boilerplate and is not requred for our purposes, but must be there for the OpenAPI parser to be satisfied.
+# This block of YAML will be defined as OPENAPI-PREAMBLE below.
+#-------------------------------------------------------------------------------------------------------------------------------
+
+# YAML is sensitive to indentation. Indentation matters VERY MUCH. DO NOT use TABS as this becomes confusing.
+# Our best practice is to use 2 spaces for indentation, although not required by YAML.
+
+# Extensions that we have added to OpenAPI begin with x-. Everything under the x-meta-data is also technically an extension even though
+# it may appear similar to regular OpenAPI constructs.
+
+# Below is a generalized example. Sometimes arrays are included as [] and other times with the YAML - notation. You must understand
+# YAML to continue.
+
+# lower case tokens are literally what should be in the YAML.
+# UPPER CASE tokens are defined in the dictionary below the generalized example.
+
+# The notation => means "which is defined as", and is used as a kind on in-line definition.
+
+# Generalized example:
+# -------------------------------------------------------------------------------------------
+# OPENAPI-PREAMBLE
+# components:
+#   schemas:
+#     AGGREGATE-NAME:
+#       type: object
+#       description: TEXT
+#       x-aggregate-version: VERSION-STRING
+#       x-additional-cpp-includes: [ HEADER-FILENAME, HEADER-FILENAME ... ]
+#       x-nested-aggregate-versions: [ FIELD-NAME: VERSION-STRING, FIELD-NAME: VERSION-STRING ...]
+#       required: [ FIELD-NAME, FIELD-NAME ...]
+#       properties:
+#         FIELD-NAME: FIELD-SCHEMA =>
+#           type: SUPPORTED-OPENAPI-TYPE
+#           format: SUPPORTED-OPENAPI-FORMAT
+#           description: TEXT
+#           default: DEFAULT-VALUE
+#        OR
+#         FIELD-NAME: ENUM-FIELD-SCHEMA =>
+#           type: integer
+#           format: ENUM-TYPE
+#           default: DEFAULT-VALUE
+#           enum: [ ENUM-VALUE, ENUM-VALUE ... ]
+#           x-enumNames: [ ENUM-VALUE-NAME, ENUM-VALUE-NAME ... ]
+#           x-enumName:  ENUM-NAME
+#           x-enumSuffix: ENUM-SUFFIX
+#           x-generateEnumDescriptions: [ ENUM-VALUE-DESCRIPTION, ENUM-VALUE-DESCRIPTION ... ]
+#        OR
+#         FIELD-NAME: VECTOR-FIELD-SCHEMA =>
+#           type: array
+#           items:
+#             { type: SUPPORTED-OPENAPI-TYPE, format: SUPPORTED-OPENAPI-FORMAT }
+#        OR
+#         FIELD-NAME: OPENAPI-REF => '#/components/schemas/AGGREGATE-NAME'
+#         ...
+#       x-meta-data:
+#         assess-rules:
+#           RULE-ID:
+#             - stringId: 
+#               condition: BOOLEAN-INFFIX-EXPRESSION
+#               expression: FIELD-VALUE-INFIX-EXPRESSION
+#           ...
+#         computations:
+#           RULE-ID:
+#             field: FIELD-NAME
+#             condition: BOOLEAN-INFFIX-EXPRESSION
+#             expression: FIELD-VALUE-INFIX-EXPRESSION
+#           ...
+#         versions:
+#           VERSION-STRING:
+#              assess-rules:
+#                -RULE-ID
+#                ...
+#              computations:
+#                - RULE-ID
+#                ...
+#              conversions:
+#                - field: FIELD-NAME
+#                  toVersion: VERSION-STRING
+#                  condition: BOOLEAN-INFFIX-EXPRESSION-STRING
+#                  expression: FIELD-VALUE-INFIX-EXPRESSION-STRING
+#                ...
+#              x-nested-aggregate-versions: [ FIELD-NAME: VERSION-STRING, FIELD-NAME: VERSION-STRING ...]
+#              required: [ FIELD-NAME, FIELD-NAME ...]
+#              properties:
+#                FIELD-NAME:
+#                  x-version-ref: VERSION-STRING
+#               OR
+#                FIELD-NAME: FIELD-SCHEMA
+#               OR
+#                FIELD-NAME: ENUM-FIELD-SCHEMA
+#               OR
+#                FIELD-NAME: VECTOR-FIELD-SCHEMA
+#               OR
+#                FIELD-NAME: OPENAPI-REF
+#               ...
+
+# Notes
+# -----------------------------------------------------------
+# ENUM-FIELD-SCHEMA - If x-generateEnumDescriptions is specified, the enumeration is automatically generated. In this
+#                     case all tokens in ENUM-FIELD-SCHEMA is required. If not specified, the enumeration is Not
+#                     generated but is expected to already exist, either by generating from another aggregate with
+#                     the same aggregate or externally defined. In this case x-additional-cpp-includes may be useful.
+# x-version-ref -     This is a reference to a another version and acts to say "use the field specification from this version".
+# Version ordering -  Versions are always order most-recent first, and the initial aggregate definition is the most recent version.
+#                     The versions in the x-meta-data are ordered most-recent first regardless of the version label. The intent is
+#                     to use semver notation so v1.2.3 is more recent than v1.2.2, but the actual version text is never used semantically.
+# assess-rules, computations -
+#                     These are defined immediately after the x-meta-data label, and REFERENCED in versions. If they are NOT
+#                     referenced in a version then they are considered absent in that version. If a rule changes between versions,
+#                     then a new version rule must be added by a different name and referenced in the appropriate version(s).
+# conversion       -  Conversions are only defined under a specific version label and apply to converting from that version into
+#                     the version specified by the toVersion label.
+# Dictionary
+# -----------------------------------------------------------
+# AGGREGATE-NAME - becomes the generated class name 
+# BOOLEAN-INFFIX-EXPRESSION - string expression, such as "Field1 < 15", which evaluates to a boolean value
+# DEFAULT-VALUE - default numeric or string value for a specified field, such as -1 or 'Sam Smith'
+# ENUM-FIELD-SCHEMA - see above generalized example for definition
+# ENUM-NAME - Name of generated enum type. In C++ this is the namespace part.
+# ENUM-SUFFIX - extra part of enum used by C++. The C++ form will be ENUM-NAME::ENUM-SUFFIX. Not used in other computer languages.
+# ENUM-TYPE - type of enum. Valid types are: enum-int32, enum-int64, enum-uint32, enum-uint64.
+# ENUM-VALUE - value of enum, such as 0, 1, 2, ...
+# ENUM-VALUE-DESCRIPTION - freestype textual description of an enum value such as 'male patient' or 'female patient'.
+#                          These will NOT be used in program code expressions but will show up in intellesense and documentation.
+# ENUM-VALUE-NAME - name for enum value, such as Male, Female. These names are 1-to-1 with the enum values.
+#                    These will be used in computer program code expressions and must be valid computer language variable names.
+# FIELD-NAME - becomes the generated field name in class
+# FIELD-SCHEMA - see above generalized example for definition
+# FIELD-VALUE-INFIX-EXPRESSION - string expression such as 'Field1 - 2' that evaluates to a value suitable for the associated field value.
+# HEADER-FILENAME - C++ header file name used when generating C++ code
+# OPENAPI-PREAMBLE - see section of YAML at top of this file
+# RULE-ID - unique rule string identifier such as 'Field1ComputeRule'
+# RULE-LOCALIZATION-ID - unique string identifier that can be used for localization lookup purposes
+# SUPPORTED-OPENAPI-FORMAT - format value. Valid values are double, int32, int64, uint32, uint64
+# SUPPORTED-OPENAPI-TYPE - Valid values are number, integer, boolean, string, array, object
+# TEXT - text content
+# VERSION-STRING - version string, usually in semver format. Must begin with a character 'v' to prevent confusing parser.
+
+# Specific annotated example
+# --------------------------
+
+components:
+  schemas:
+    SimpleAggregate: # AGGREGATE-NAME
+      type: object  # SUPPORTED-OPENAPI-TYPE
+      description: 'Simple Type.' # TEXT
+      x-aggregate-version: v1.0.0  # VERSION-STRING
+      x-additional-cpp-includes: [ 'ProjectEnumerations.h' ] # HEADER-FILENAME
+      properties:
+        DoubleValue: { type: number, format: double, description: 'float field' }  # SUPPORTED-OPENAPI-TYPE SUPPORTED-OPENAPI-FORMAT TEXT
+        SimpleEnumField: # FIELD-NAME
+          type: integer # SUPPORTED-OPENAPI-TYPE
+          format: enum-int32  # ENUM-TYPE
+          default: "2"  # DEFAULT-VALUE
+          x-enumName: SimpleReferenceEnum  # ENUM-NAME
+          x-enumSuffix: SimpleReference  # ENUM-SUFFIX
+      x-meta-data:
+        versions:
+          v1.0.0: # VERSION-STRING
+            properties:
+              DoubleValue: # FIELD-NAME
+                x-version-ref: 'v1.0.0'  # VERSION-STRING
+              SimpleEnumField:
+                x-version-ref: 'v1.0.0'  # VERSION-STRING
+
+    ProjectEnumerations:
+      type: object
+      description: 'ProjectEnumerations'
+      x-aggregate-version: v1.0.0
+      properties:
+        SimpleReferenceEnumGenerator:  # AGGREGATE-NAME  ENUM-FIELD-SCHEMA ...
+          type: integer   
+          format: enum-int32  # ENUM-TYPE
+          x-enumName: SimpleReferenceEnum   # ENUM-NAME
+          x-enumSuffix: SimpleReference  # ENUM-SUFFIX
+          x-enumNames: [ VeryGood, Good, Average, BelowAverage, Poor, VeryPoor ]  # ENUM-VALUE-NAME, ...
+          x-generateEnumDescriptions: [ 'very good reference', 'good reference', 'average reference', 'below average reference', 'poor reference', 'very poor reference' ]
+                                        # ENUM-VALUE-DESCRIPTION, ...
+          enum: [ 0, 1, 2, 4, 8, 16 ]   # ENUM-VALUE, ENUM-VALUE, ...
+      x-meta-data:
+        versions:
+          v1.0.0:   # VERSION-STRING
+            properties:
+              SimpleReferenceEnumGenerator:
+                x-version-ref: 'v1.0.0'  # VERSION-STRING
+
+    ReferenceAggregate:
+      type: object
+      description: 'ReferenceAggregate.'
+      x-aggregate-version: v1.1.0
+      x-additional-cpp-includes: [ 'BaseAggregate.h', 'BaseField.h' ] # un-necessary example to include additional C++ includes
+      properties:
+        BoolField: { type: boolean, description: 'Boolean field', default: true }
+        Int32Field: { type: integer, format: int32, description: 'integer field', default: -1 }
+        Uint32Field: { type: integer, format: uint32, description: 'uinteger field', default: 1 }
+        Int64Field: { type: integer, format: int64, description: 'integer field', default: -1 }
+        Uint64Field: { type: integer, format: uint64, description: 'uinteger field', default: 1 }
+        DoubleField: { type: number, format: double, description: 'double field', default: 1.0 }
+        StringField: { type: string, description: 'string field', default: "hello world" }
+        BoolFieldRequiredv2: { type: boolean }
+        EnumField:  # ENUM-FIELD-SCHEMA...
+          type: number # can be either integer or number for enum. use number for very large numbers
+          format: enum-int64 # ENUM-TYPE
+          default: "2"
+          x-enumName: ReferenceEnum
+          x-enumSuffix: Reference
+          x-enumNames: [ VeryGood, Good, Average, BelowAverage, Poor, VeryPoor ]
+          x-generateEnumDescriptions: [ 'very good reference', 'good reference', 'average reference', 'below average reference', 'poor reference', 'very poor reference' ]
+          enum: [ 0, 1, 2, 4, 8, 2747782723 ] # VeryPoor is so large the enum must be a number instead of integer
+        VectorIntField:  # VECTOR-FIELD-SCHEMA...
+           type: array
+           items:
+             { type: integer, format: int32 }
+        NestedField: { $ref: '#/components/schemas/SimpleAggregate' }   # OPENAPI-REF to nested SimpleAggregate in this file
+        VectorAggField:  # VECTOR-FIELD-SCHEMA...
+           type: array
+           items:
+             { $ref: '#/components/schemas/SimpleAggregate' }
+      x-nested-aggregate-versions: [ NestedField: v1.0.0 ]  # each nested aggregate must be represented in this array
+      required: [ BoolFieldRequiredv2 ]
+      x-meta-data:
+        assess-rules:
+          ruleId1:   # RULE-ID 
+            stringId: 'ruleStringId1' # RULE-LOCALIZATION-ID
+            condition: true   # always executed
+            expression: '1+1'
+        computations:
+          DoubleFieldCompute: # computation rule for field named DoubleField
+            field: DoubleField
+            condition: true
+            expression: '1 + 3'
+        versions:
+          v1.1.0:
+            assess-rules:
+              - ruleId1
+            conversions:  # conversion rule from v1.1.0 to v1.0.0
+              - field: DoubleField
+                toVersion: 'v1.0.0'
+                condition: 'doubleField == 1'
+                expression: '1 + 2'
+            computations:
+              - DoubleFieldCompute
+          v1.0.0:
+            properties:
+              V100Field: { type: number, format: double, description: 'double field', default: 1.0 }  # only in v1.0.0
+              BoolField:
+                x-version-ref: 'v1.1.0'
+              Int32Field:
+                x-version-ref: 'v1.1.0'
+              Uint32Field:
+                x-version-ref: 'v1.1.0'
+              Int64Field:
+                x-version-ref: 'v1.1.0'
+              Uint64Field:
+                x-version-ref: 'v1.1.0'
+              DoubleField:
+                x-version-ref: 'v1.1.0'
+              StringField:
+                x-version-ref: 'v1.1.0'
+              EnumField:
+                x-version-ref: 'v1.1.0'
+              NestedField:
+                x-version-ref: 'v1.1.0'
+              NestedField2:  { $ref: '#/components/schemas/SimpleAggregate' }
+              BoolFieldRequiredv0: { type: boolean }
+              VectorIntField:
+                 x-version-ref: 'v1.1.0'
+            x-nested-aggregate-versions: [ NestedField: v1.0.0, NestedField2: v1.0.0 ]
+            required: [ BoolFieldRequiredv0 ]
+            assess-rules:
+              - ruleId1
+            conversions:  # conversion rule from v1.0.0 to v1.1.0
+              - field: DoubleField
+                toVersion: 'v1.1.0'
+                condition: 'doubleField == 1'
+                expression: '1 + 1'
+            computations:
+              - DoubleFieldCompute
