@@ -133,33 +133,33 @@ namespace Application
             {
                 var messageType = MessageTypeMapper(messageTypeString);
                 Type[] typeArgs = { messageType };
-                var generic = typeof(MqttInboundRequest<>);
+                var generic = typeof(InboundRequest<>);
                 var constructedType = generic.MakeGenericType(typeArgs);
                 var requestObject = Activator.CreateInstance(constructedType);
 
-                var inboundRequest = requestObject as IMqttInboundRequest;
+                var inboundRequest = requestObject as IInboundRequest;
                 inboundRequest.RawMessage = arg.ApplicationMessage;
                 inboundRequest.PropertyBag["messageType"] = messageTypeString;
 
-                var response = await _mediator.Send(requestObject) as MqttInboundResponse;
+                var response = await _mediator.Send(requestObject) as InboundResponse;
                 arg.ProcessingFailed = !response.Success;
             }
             else
             {
                 var messageType = MessageTypeMapper(messageTypeString);
                 Type[] typeArgs = { messageType };
-                var generic = typeof(MqttInboundRequest<>);
+                var generic = typeof(InboundRequest<>);
                 var constructedType = generic.MakeGenericType(typeArgs);
                 var requestObject = Activator.CreateInstance(constructedType);
 
-                var inboundRequest = requestObject as IMqttInboundRequest;
+                var inboundRequest = requestObject as IInboundRequest;
                 inboundRequest.RawMessage = arg.ApplicationMessage;
                 inboundRequest.PropertyBag["messageType"] = messageTypeString;
                 inboundRequest.PropertyBag["responseType"] = responseTypeString;
                 inboundRequest.ResponseTopic = arg.ApplicationMessage.ResponseTopic;
                 inboundRequest.CorrelationData = arg.ApplicationMessage.CorrelationData;
 
-                var response = await _mediator.Send(requestObject) as MqttInboundResponse;
+                var response = await _mediator.Send(requestObject) as InboundResponse;
                 arg.ProcessingFailed = !response.Success;
                 await Task.Run(async () => await _mqttClient.PublishAsync(builder =>
                         builder

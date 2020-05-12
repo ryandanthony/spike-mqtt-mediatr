@@ -12,7 +12,7 @@ using Spike.Messages;
 
 namespace Application.Handlers
 {
-    public class StatusHandler : IRequestHandler<MqttInboundRequest<DeviceStatus>, MqttInboundResponse>
+    public class StatusHandler : IRequestHandler<InboundRequest<DeviceStatus>, InboundResponse>
     {
         private ILogger<StatusHandler> _logger;
 
@@ -21,7 +21,7 @@ namespace Application.Handlers
             _logger = logger;
         }
 
-        public Task<MqttInboundResponse> Handle(MqttInboundRequest<DeviceStatus> request, CancellationToken cancellationToken)
+        public Task<InboundResponse> Handle(InboundRequest<DeviceStatus> request, CancellationToken cancellationToken)
         {
             _logger.WithDebug("DeviceStatus: DeviceId:{0} Condition:{1}", request.Message.DeviceId.Value, request.Message.Condition.Value)
                 .HandleAs(Handling.Unrestricted)
@@ -30,7 +30,7 @@ namespace Application.Handlers
                 .WithPair("When", DateTime.FromBinary(Convert.ToInt64(request.Message.When.Value)).ToString())
                 .WithPair("Condition", request.Message.Condition.Value)
                 .Log();
-            return Task.FromResult(new MqttInboundResponse() {Success = true});
+            return Task.FromResult(new InboundResponse() {Success = true});
         }
     }
 }

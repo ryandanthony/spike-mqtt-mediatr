@@ -7,7 +7,7 @@ using Spike.Common;
 
 namespace Application.Infrastructure
 {
-    public class OutboundMessageHandler : IRequestHandler<MqttOutboundRequest, MqttOutboundResponse>
+    public class OutboundMessageHandler : IRequestHandler<OutboundRequest, OutboundResponse>
     {
         private readonly IManagedMqttClient _mqttClient;
 
@@ -16,7 +16,7 @@ namespace Application.Infrastructure
             _mqttClient = mqttClient;
         }
 
-        public async Task<MqttOutboundResponse> Handle(MqttOutboundRequest request, CancellationToken cancellationToken)
+        public async Task<OutboundResponse> Handle(OutboundRequest request, CancellationToken cancellationToken)
         {
             if (request.Payload != null)
             {
@@ -42,7 +42,7 @@ namespace Application.Infrastructure
                     , cancellationToken);
             }
 
-            return new MqttOutboundResponse(){Success = true};
+            return new OutboundResponse(){Success = true};
         }
     }
 }

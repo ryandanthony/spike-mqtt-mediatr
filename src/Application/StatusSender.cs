@@ -36,7 +36,7 @@ namespace Application
                         MessageId = Guid.NewGuid(),
                     };
                     Console.WriteLine($"Sending: {status.MessageId}");
-                    await mediator.Send(new MqttOutboundRequest()
+                    await mediator.Send(new OutboundRequest()
                     {
                         Topic = $"bct/app/status",
                         Message = status,

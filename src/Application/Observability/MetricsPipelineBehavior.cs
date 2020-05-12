@@ -23,13 +23,13 @@ namespace Application.Observability
         {
             string label = null;
             Type t = request.GetType();
-            if (request is IMqttOutboundRequest)
+            if (request is IOutboundRequest)
             {
-                label = (request as IMqttOutboundRequest).MessageType;
+                label = (request as IOutboundRequest).MessageType;
             }
-            else if (request is IMqttInboundRequest)
+            else if (request is IInboundRequest)
             {
-                label = (request as IMqttInboundRequest).PropertyBag["messageType"] as string;
+                label = (request as IInboundRequest).PropertyBag["messageType"] as string;
             }
 
             if (label != null)

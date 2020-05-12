@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Application.Handlers
 {
-    public class InitializeConnectionHandler : IRequestHandler<MqttInboundRequest<InitializeConnection>, MqttInboundResponse>
+    public class InitializeConnectionHandler : IRequestHandler<InboundRequest<InitializeConnection>, InboundResponse>
     {
         private readonly IMediator _mediator;
         private ILogger<InitializeConnectionHandler> _logger;
@@ -21,7 +21,7 @@ namespace Application.Handlers
             _logger = logger;
         }
 
-        public async Task<MqttInboundResponse> Handle(MqttInboundRequest<InitializeConnection> request,
+        public async Task<InboundResponse> Handle(InboundRequest<InitializeConnection> request,
             CancellationToken cancellationToken)
         {
             _logger.WithDebug("InitializeConnection: DeviceId:{0}", handling: Handling.Unrestricted, request.Message.DeviceId.Value)
@@ -40,7 +40,7 @@ namespace Application.Handlers
             response.DeviceId.Value = request.Message.DeviceId.Value;
             var payload = Encoding.UTF8.GetBytes(response.Serialize());
 
-            return new MqttInboundResponse()
+            return new InboundResponse()
             {
                     Topic = request.ResponseTopic,
                     Message = connectionAccepted,
