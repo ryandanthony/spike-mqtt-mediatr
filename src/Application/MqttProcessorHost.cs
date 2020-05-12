@@ -2,6 +2,8 @@
 // Copyright (c) 2020 TerumoBCT. All rights reserved.
 // </copyright>
 
+// *** MQTT Component ***
+
 using System;
 using System.Linq;
 using System.Threading;
@@ -30,13 +32,14 @@ namespace Application
         private IManagedMqttClient _mqttClient;
         private IMediator _mediator;
         private ILogger<MqttProcessorHost> _logger;
-        private IDictionary<string, Type> _registeredMessages;
+        private IDictionary<string, Type> _registeredMessages = new Dictionary<string, Type>();
+        private IEnumerable<IAbstractAggregate> _abstractAggregates;
 
-        public MqttProcessorHost(IServiceProvider provider, ILogger<MqttProcessorHost> logger)
+        public MqttProcessorHost(IServiceProvider provider, ILogger<MqttProcessorHost> logger, IEnumerable<IAbstractAggregate> abstractAggregates)
         {
             _provider = provider;
             _logger = logger;
-            _registeredMessages = new Dictionary<string, Type>();
+            _abstractAggregates = abstractAggregates;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -46,8 +49,7 @@ namespace Application
             _mediator = _provider.GetRequiredService<IMediator>();
 
             // Build dictionary of aggregate names to types from all IAbstractAggregates to use in MessageTypeMapper
-            var abstractAggregates = _provider.GetServices<IAbstractAggregate>();
-            foreach (var e in abstractAggregates)
+            foreach (var e in _abstractAggregates)
             {
                 _registeredMessages.Add(e.GetType().Name, e.GetType());
             }

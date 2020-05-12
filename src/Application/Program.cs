@@ -40,6 +40,7 @@ namespace Application
                 .ConfigureBCTLogging()
                 .ConfigureServices(services =>
                 {
+                    // *** APP Component ***
                     services.AddSingleton(p =>
                     {
                         var appName = "application";
@@ -51,6 +52,7 @@ namespace Application
                         };
                     });
 
+                    // *** Mediator Component ***
                     services.AddSingleton<IManagedMqttClient>(p =>
                     {
                         var mqttClientConfiguration = p.GetService<BctMqttClientConfiguration>();
@@ -72,20 +74,28 @@ namespace Application
                         return mqttClient;
                     });
 
-
+                    // *** Mediator Component ***
                     services.AddMediatR(new[] {typeof(Program).Assembly});
 
+                    // *** Messages Component *** 
                     // add all known messages from assemblyies using known message type
                     services.RegisterAssemblyPublicNonGenericClasses(new[] { Assembly.GetAssembly(typeof(DeviceStatus) )})
                         .Where(c => c.BaseType == typeof(BaseAggregate))
                         .AsPublicImplementedInterfaces();
 
+                    // *** Mediator Component ***
                     services.AddScoped(typeof(IPipelineBehavior<,>), typeof(MetricsPipelineBehavior<,>));
                     //services.AddScoped(typeof(IPipelineBehavior<,>), typeof(DistributedTracingBehavior<,>));
-
+                    
+                    // *** Metrics Component *** (already exists)
                     services.AddHostedService(provider => new MetricsHost("localhost",1200));
+                    // *** Traceing componetnt *** (already exists)
                     //services.AddHostedService(provider => new DistributedTracingHost(provider.GetService<ILoggerFactory>(), provider.GetService<IConfiguration>())); 
+                    
+                    // *** MQTT Component ***
                     services.AddHostedService<MqttProcessorHost>();
+
+                    // *** APP Component ***
                     services.AddHostedService<StatusSender>();
                 });
     }
