@@ -132,6 +132,8 @@ namespace Application
 
             // Only if there is a responseType specifed do we do request/response processing
             // Otherwise we treat it as a notification.
+
+            // Notification
             if (responseTypeString == null)
             {
                 var messageType = MessageTypeMapper(messageTypeString);
@@ -146,6 +148,7 @@ namespace Application
 
                 await _mediator.Publish(notifyObject);
             }
+            // Request/Response
             else
             {
                 var messageType = MessageTypeMapper(messageTypeString);
