@@ -9,17 +9,21 @@ using Application.Messages;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Spike.Messages;
+using BCT.Common.Logging.Extensions;
 
 namespace Application
 {
     internal class StatusSender : IHostedService
     {
         private readonly IServiceProvider _provider;
+        private readonly ILogger<StatusSender> _logger;
 
-        public StatusSender(IServiceProvider provider)
+        public StatusSender(IServiceProvider provider, ILogger<StatusSender> logger)
         {
             _provider = provider;
+            _logger = logger;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -35,7 +39,7 @@ namespace Application
                         When = DateTimeOffset.Now,
                         MessageId = Guid.NewGuid(),
                     };
-                    Console.WriteLine($"Sending: {status.MessageId}");
+                    _logger.WithDebug($"App 1 Sending Status: {status.MessageId}").Log();
                     await mediator.Send(new OutboundRequest()
                     {
                         Topic = $"bct/app/status",
