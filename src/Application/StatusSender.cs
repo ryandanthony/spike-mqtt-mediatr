@@ -40,7 +40,7 @@ namespace Application
                         MessageId = Guid.NewGuid(),
                     };
                     _logger.WithDebug($"App 1 Sending Status: {status.MessageId}").Log();
-                    await mediator.Send(new OutboundRequest()
+                    await mediator.Publish(new OutboundNotification()
                     {
                         Topic = $"bct/app/status",
                         Message = status,
