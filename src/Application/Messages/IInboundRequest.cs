@@ -2,6 +2,7 @@
 // Copyright (c) 2020 TerumoBCT. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 using MQTTnet;
 
@@ -13,6 +14,7 @@ namespace Application.Messages
         MqttApplicationMessage RawMessage { get; set; }
         string ResponseTopic { get; set; }
         byte[] CorrelationData { get; set; }
+        Func<byte[], string, string, object> TypeConverter { get; set; }
     }
 
     public interface IInboundRequest<T> : IInboundRequest

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
+using System.Drawing;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Messages;
@@ -35,20 +38,57 @@ namespace Application.Handlers
 
             _logger.WithDebug("Sending: ConnectionAccepted").Log();
 
+
             var response = new InitializeConnectionResponse();
             response.RequestApproved.Value = true;
             response.DeviceId.Value = request.Message.DeviceId.Value;
             var payload = Encoding.UTF8.GetBytes(response.Serialize());
 
-            return new InboundResponse()
+
+            _mediator.Send(new Outbound<T>()
             {
-                    Topic = request.ResponseTopic,
-                    Message = connectionAccepted,
-                    MessageType = connectionAccepted.GetType().Name,
-                    Payload = payload,
-                    PayloadType = response.GetType().Name,
-                    CorrelationData = request.CorrelationData,
-            };
+                Topic = request.ResponseTopic,
+                Message = connectionAccepted,
+                MessageType = connectionAccepted.GetType().Name,
+                Payload = payload,
+                PayloadType = response.GetType().Name,
+                CorrelationData = request.CorrelationData,
+            });
+
+            //return new InboundResponse()
+            //{
+                  
+            //};
         }
     }
+
+    public class MyNSBHandler : INsbHandler<Contract.Commmand.Ping>
+    {
+        private readonly IMediator _mediator;
+
+        public MyNSBHandler(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+        public void Handle(Ping command, context)
+        {
+
+
+            _mediator.Send(new Outbound<T>()
+            {
+                Topic = request.ResponseTopic,
+                Message = connectionAccepted,
+                MessageType = connectionAccepted.GetType().Name,
+                Payload = payload,
+                PayloadType = response.GetType().Name,
+                CorrelationData = request.CorrelationData,
+            });
+
+        }
+
+
+
+
+    }
+
 }

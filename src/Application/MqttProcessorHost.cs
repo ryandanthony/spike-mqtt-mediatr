@@ -32,14 +32,19 @@ namespace Application
         private IManagedMqttClient _mqttClient;
         private IMediator _mediator;
         private ILogger<MqttProcessorHost> _logger;
-        private IDictionary<string, Type> _registeredMessages = new Dictionary<string, Type>();
-        private IEnumerable<IAbstractAggregate> _abstractAggregates;
+        private readonly IMessageAdapter _messageAdapter;
+        //private IDictionary<string, Type> _registeredMessages = new Dictionary<string, Type>();
+        //private IEnumerable<IAbstractAggregate> _abstractAggregates;
 
-        public MqttProcessorHost(IServiceProvider provider, ILogger<MqttProcessorHost> logger, IEnumerable<IAbstractAggregate> abstractAggregates)
+        public MqttProcessorHost(IServiceProvider provider, ILogger<MqttProcessorHost> logger,
+            IMessageAdapter messageAdapter,
+            
+            IEnumerable<IAbstractAggregate> abstractAggregates)
         {
             _provider = provider;
             _logger = logger;
-            _abstractAggregates = abstractAggregates;
+            _messageAdapter = messageAdapter;
+            //_abstractAggregates = abstractAggregates;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -49,10 +54,10 @@ namespace Application
             _mediator = _provider.GetRequiredService<IMediator>();
 
             // Build dictionary of aggregate names to types from all IAbstractAggregates to use in MessageTypeMapper
-            foreach (var e in _abstractAggregates)
-            {
-                _registeredMessages.Add(e.GetType().Name, e.GetType());
-            }
+            //foreach (var e in _abstractAggregates)
+            //{
+            //    _registeredMessages.Add(e.GetType().Name, e.GetType());
+            //}
 
             var group = "thisGroup";
             var deviceType = "+";
@@ -164,6 +169,8 @@ namespace Application
                 inboundRequest.ResponseTopic = arg.ApplicationMessage.ResponseTopic;
                 inboundRequest.CorrelationData = arg.ApplicationMessage.CorrelationData;
 
+                inboundRequest.TypeConverter = _messageAdapter.Converter;
+
                 var response = await _mediator.Send(requestObject) as InboundResponse;
                 arg.ProcessingFailed = !response.Success;
                 await Task.Run(async () => await _mqttClient.PublishAsync(builder =>
@@ -180,7 +187,7 @@ namespace Application
         {
             try
             {
-                return _registeredMessages[messageName];
+                return _messageAdapter.GetType(messageName);
             }
             catch (Exception)
             {
@@ -192,5 +199,14 @@ namespace Application
         {
             _mqttClient?.Dispose();
         }
+    }
+
+    public interface IMessageAdapter
+    {
+        string GetTypeName(Type type);
+        Type GetType(string type);
+
+        //object Converter(string encoding, string serialization, byte[] arg);
+        object Converter(byte[] bytes, string encoding, string serialization);
     }
 }

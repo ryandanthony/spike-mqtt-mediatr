@@ -12,17 +12,19 @@ using Spike.Common;
 
 namespace Application.Messages
 {
-    public class InboundRequest<T> : IRequest<InboundResponse>, IInboundRequest<T>
+    public class InboundRequest<T> : IRequest<InboundResponse>, IInboundRequest<T> 
+        where T : class
     {
         private readonly Lazy<T> _lazyMessage;
+
+        public Func<byte[], object> TypeConverter { get; set; }
 
         public InboundRequest()
         {
             PropertyBag = new Dictionary<string, object>();
             _lazyMessage = new Lazy<T>(() =>
             {
-                var json = Encoding.UTF8.GetString(RawMessage.Payload);
-                var obj = BaseAggregate.Deserialize<T>(json);
+                var obj = TypeConverter(RawMessage.Payload) as T;
                 return obj;
             });
         }
