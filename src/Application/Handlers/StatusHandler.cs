@@ -12,7 +12,7 @@ using Spike.Messages;
 
 namespace Application.Handlers
 {
-    public class StatusHandler : IRequestHandler<InboundRequest<DeviceStatus>, InboundResponse>
+    public class StatusHandler : INotificationHandler<InboundNotification<DeviceStatus>>
     {
         private ILogger<StatusHandler> _logger;
 
@@ -21,16 +21,17 @@ namespace Application.Handlers
             _logger = logger;
         }
 
-        public Task<InboundResponse> Handle(InboundRequest<DeviceStatus> request, CancellationToken cancellationToken)
+        public Task Handle(InboundNotification<DeviceStatus> notification, CancellationToken cancellationToken)
         {
-            _logger.WithDebug("DeviceStatus: DeviceId:{0} Condition:{1}", request.Message.DeviceId.Value, request.Message.Condition.Value)
+            _logger.WithDebug("DeviceStatus: DeviceId:{0} Condition:{1}", notification.Message.DeviceId.Value, notification.Message.Condition.Value)
                 .HandleAs(Handling.Unrestricted)
-                .WithPair("DeviceId", request.Message.DeviceId.Value)
-                .WithPair("MessageId",request.Message.MessageId.Value)
-                .WithPair("When", DateTime.FromBinary(Convert.ToInt64(request.Message.When.Value)).ToString())
-                .WithPair("Condition", request.Message.Condition.Value)
+                .WithPair("DeviceId", notification.Message.DeviceId.Value)
+                .WithPair("MessageId", notification.Message.MessageId.Value)
+                .WithPair("When", DateTime.FromBinary(Convert.ToInt64(notification.Message.When.Value)).ToString())
+                .WithPair("Condition", notification.Message.Condition.Value)
                 .Log();
-            return Task.FromResult(new InboundResponse() {Success = true});
+            return Task.CompletedTask;
         }
+
     }
 }

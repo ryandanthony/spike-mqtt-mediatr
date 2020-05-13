@@ -121,7 +121,7 @@ namespace Device
                                     .WithContentType("application/json")
                             , cancellationTokenSource.Token);
 
-                        await Task.Delay(10000, cancellationTokenSource.Token);
+                        await Task.Delay(5000, cancellationTokenSource.Token);
                     }
                 }, cancellationTokenSource.Token);
                 are.WaitOne();

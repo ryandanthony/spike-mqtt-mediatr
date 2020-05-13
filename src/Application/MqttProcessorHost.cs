@@ -130,21 +130,21 @@ namespace Application
                 .FirstOrDefault(p => p.Name == "responseType")?
                 .Value;
 
-            // only if there is a responseType specifed do we do response processing
+            // Only if there is a responseType specifed do we do request/response processing
+            // Otherwise we treat it as a notification.
             if (responseTypeString == null)
             {
                 var messageType = MessageTypeMapper(messageTypeString);
                 Type[] typeArgs = { messageType };
-                var generic = typeof(InboundRequest<>);
+                var generic = typeof(InboundNotification<>);
                 var constructedType = generic.MakeGenericType(typeArgs);
-                var requestObject = Activator.CreateInstance(constructedType);
+                var notifyObject = Activator.CreateInstance(constructedType);
 
-                var inboundRequest = requestObject as IInboundRequest;
-                inboundRequest.RawMessage = arg.ApplicationMessage;
-                inboundRequest.PropertyBag["messageType"] = messageTypeString;
+                var inboundNotification = notifyObject as IInboundNotification;
+                inboundNotification.RawMessage = arg.ApplicationMessage;
+                inboundNotification.PropertyBag["messageType"] = messageTypeString;
 
-                var response = await _mediator.Send(requestObject) as InboundResponse;
-                arg.ProcessingFailed = !response.Success;
+                await _mediator.Publish(notifyObject);
             }
             else
             {

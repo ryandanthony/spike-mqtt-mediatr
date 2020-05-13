@@ -42,7 +42,7 @@ namespace Application
                         Message = status,
                         MessageType = status.GetType().Name
                     }, cancellationToken);
-                    await Task.Delay(1000, cancellationToken);
+                    await Task.Delay(10000, cancellationToken);
                 }
             }, cancellationToken);
         }
