@@ -23,6 +23,10 @@
 		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\BCT.Barcode.Contract\Bct.Barcode.Contract.csproj" />
+	  <ProjectReference Include="..\BCT.Barcode.Persistence\Bct.Barcode.Persistence.csproj" />
+	  <ProjectReference Include="..\BCT.Barcode\Bct.Barcode.csproj" />
+	  <ProjectReference Include="..\Bct.Common.NServiceBus\Bct.Common.NServiceBus.csproj" />
 	  <ProjectReference Include="..\Spike.Common\Spike.Common.csproj" />
 	  <ProjectReference Include="..\Spike.Messages\Spike.Messages.csproj" />
 	</ItemGroup>

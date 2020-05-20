@@ -4,7 +4,16 @@
       "commandName": "Project",
       "environmentVariables": {
         "USE_SEQ_LOGGING": "true",
-        "SEQ_URI": " http://192.168.1.98:5341"
+        "SEQ_URI": " http://192.168.1.98:5341",
+        "RABBITMQ_CONNECTION": "host=192.168.1.98;username=devtools_user;password=DevTools1!;virtualhost=/",
+        "HEALTHSERVICE_USE_RANDOM_PORT": "true",
+        "PERSISTENCE_CONNECTION": "Server=192.168.1.98;Port=5432;Database=Barcode;User id=devtools_user;Password=DevTools1!",
+        "JAEGER_ENABLED": "false",
+        "PERSISTENCE_TYPE": "PostgreSQL",
+        "LOGGING_LEVEL": "Debug",
+        "USE_FLUENTD_LOGGING": "false",
+        "METRICS_ENABLED": "false",
+        "METRICS_PORT": "1555"
       }
     }
   }

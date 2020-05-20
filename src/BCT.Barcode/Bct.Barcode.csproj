@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bct.CodeStandards.Ruleset" Version="1.0.3" PrivateAssets="All" />
+    <PackageReference Include="BCT.Common.Logging.Extensions" Version="2.7.0" />
+    <PackageReference Include="NServiceBus.Persistence.Sql" Version="5.0.0" />
+    <PackageReference Include="IdGen" Version="2.2.0" />
+    <PackageReference Include="NServiceBus" Version="7.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bct.Barcode.Contract\Bct.Barcode.Contract.csproj" />
+    <ProjectReference Include="..\Bct.Barcode.Persistence\Bct.Barcode.Persistence.csproj" />
+    <ProjectReference Include="..\Bct.Common.NServiceBus\Bct.Common.NServiceBus.csproj" />
+  </ItemGroup>
+
+</Project>
