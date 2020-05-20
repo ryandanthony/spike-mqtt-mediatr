@@ -47,7 +47,7 @@ namespace Application.Handlers
             {
                 Id = 123
             };
-            /// await _ms.Send(msg);
+            await _ms.Send(msg);
 
             // In this case we respond now
 

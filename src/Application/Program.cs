@@ -60,7 +60,7 @@ namespace Application
                 .UseBctNServiceBus((configuration) => new HostingConfiguration()
                 {
                     RabbitMqConnectionString = configuration["RABBITMQ_CONNECTION"],
-                    EndpointName = "BarcodeService",
+                    EndpointName = Bct.Barcode.Contract.Constants.RouteName,
                     EnablePersistence = false,
                     //PersistenceType = configuration["PERSISTENCE_TYPE"],
                     EnableOutbox = false,
@@ -69,6 +69,8 @@ namespace Application
                     //ConnectionString = configuration["PERSISTENCE_CONNECTION"],
                     //SubscriptionPersisterCachingTimePeriodMinutes = 1,
                     LoggingMinLevel = configuration["LOGGING_LEVEL"],
+                    EndpointRoutes = { { typeof(Bct.Barcode.Contract.Constants).Assembly, Bct.Barcode.Contract.Constants.RouteName } },
+
                 })
 
                 .ConfigureServices((hostContext, services) =>
