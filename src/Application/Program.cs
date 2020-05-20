@@ -55,21 +55,21 @@ namespace Application
                 })
 
                 .ConfigureBCTLogging()
-                //.UseJaegerTracing()
-                //.UseBctMetrics()
-                //.UseBctNServiceBus((configuration) => new HostingConfiguration()
-                //{
-                //    RabbitMqConnectionString = configuration["RABBITMQ_CONNECTION"],
-                //    EndpointName = "BarcodeService",
-                //    EnablePersistence = true,
-                //    PersistenceType = configuration["PERSISTENCE_TYPE"],
-                //    EnableOutbox = true,
-                //    EnableMetrics = configuration["METRICS_ENABLED"] == "true",
-                //    LimitMessageProcessingConcurrencyNumProcessors = null,
-                //    ConnectionString = configuration["PERSISTENCE_CONNECTION"],
-                //    SubscriptionPersisterCachingTimePeriodMinutes = 1,
-                //    LoggingMinLevel = configuration["LOGGING_LEVEL"],
-                //})
+                .UseJaegerTracing()
+                .UseBctMetrics()
+                .UseBctNServiceBus((configuration) => new HostingConfiguration()
+                {
+                    RabbitMqConnectionString = configuration["RABBITMQ_CONNECTION"],
+                    EndpointName = "BarcodeService",
+                    EnablePersistence = false,
+                    //PersistenceType = configuration["PERSISTENCE_TYPE"],
+                    EnableOutbox = false,
+                    //EnableMetrics = configuration["METRICS_ENABLED"] == "true",
+                    LimitMessageProcessingConcurrencyNumProcessors = null,
+                    //ConnectionString = configuration["PERSISTENCE_CONNECTION"],
+                    //SubscriptionPersisterCachingTimePeriodMinutes = 1,
+                    LoggingMinLevel = configuration["LOGGING_LEVEL"],
+                })
 
                 .ConfigureServices((hostContext, services) =>
                 {
