@@ -25,6 +25,7 @@ namespace Device
     class Program
     {
         static byte[] _correlation;
+        static ILogger<BaseAggregate> _logger;
 
         static async Task Main(string[] args)
         {
@@ -37,12 +38,13 @@ namespace Device
             serviceCollection.AddLogging(configure => configure.AddBCTLogging());
             serviceCollection.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
             IServiceProvider m_serviceProvider = serviceCollection.BuildServiceProvider();
-            var logger = m_serviceProvider.GetService<ILogger<BaseAggregate>>();
-            BaseAggregate.SetLogger(logger);
+
+            _logger = m_serviceProvider.GetService<ILogger<BaseAggregate>>();
+
+            BaseAggregate.SetLogger(_logger);
             
   
-            logger.WithInformation("Logging initialized").Log();
-            logger.WithError("error").Log();
+            _logger.WithInformation("Logging initialized").Log();
 
             var running = true;
             var are = new AutoResetEvent(false);
@@ -99,7 +101,7 @@ namespace Device
                             .WithPayload(payload)
                     , cancellationTokenSource.Token);
 
-                Console.WriteLine($"Publishing InitializeConnection Message");
+                _logger.WithDebug($"Publishing InitializeConnection Message").Log();
 
                 await Task.Run(async () =>
                 {
@@ -135,7 +137,7 @@ namespace Device
                 .FirstOrDefault(p => p.Name == "messageType")?
                 .Value;
 
-            Console.WriteLine(messageTypeString);
+            _logger.WithDebug(messageTypeString).Log();
 
             switch (messageTypeString)
             {
@@ -144,11 +146,11 @@ namespace Device
                     var agg = BaseAggregate.Deserialize<InitializeConnectionResponse>(json);
                     if (arg.ApplicationMessage.CorrelationData != null && _correlation.SequenceEqual(arg.ApplicationMessage.CorrelationData))
                     {
-                        Console.WriteLine($"MessageType:{messageTypeString}  RequestApproved:{agg.RequestApproved.Value}  Correlation matches");
+                        _logger.WithDebug($"MessageType:{messageTypeString}  RequestApproved:{agg.RequestApproved.Value}  Correlation matches").Log();
                     }
                     else
                     {
-                        Console.WriteLine("Correlation data mismatched");
+                        _logger.WithDebug("Correlation data mismatched").Log();
                     }
                     break;
                 default:
